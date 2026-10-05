@@ -18,17 +18,27 @@ class PlantillaEstructuraBase extends StatelessWidget {
   Widget build(BuildContext context) {
     final esMovil = PuntosCorteResponsive.esMovil(context);
 
-    return Scaffold(
-      appBar: const BarraNavegacionSuperior(),
-      drawer: esMovil ? const MenuLateralMovil() : null,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            cuerpo,
-            if (mostrarPieDePagina) const PieDePagina(),
-          ],
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          appBar: const BarraNavegacionSuperior(),
+          drawer: esMovil ? const MenuLateralMovil() : null,
+          body: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - 70, // Resta los 70px del AppBar
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  cuerpo,
+                  if (mostrarPieDePagina) const PieDePagina(),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

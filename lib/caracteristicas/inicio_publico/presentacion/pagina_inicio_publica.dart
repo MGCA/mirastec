@@ -5,9 +5,41 @@ import 'componentes/menu_lateral_movil.dart';
 import 'componentes/pie_de_pagina.dart';
 import 'componentes/tarjeta_servicio_publico.dart';
 import '../../../nucleo/utilidades/diseno_responsive.dart';
+import '../../servicios/datos/repositorio_servicios.dart';
+import '../../servicios/dominio/servicio_app.dart';
+import '../../servicios/utilidades/mapeador_iconos.dart';
 
-class PaginaInicioPublica extends StatelessWidget {
+class PaginaInicioPublica extends StatefulWidget {
   const PaginaInicioPublica({super.key});
+
+  @override
+  State<PaginaInicioPublica> createState() => _PaginaInicioPublicaState();
+}
+
+class _PaginaInicioPublicaState extends State<PaginaInicioPublica> {
+  final _repoServicios = RepositorioServicios();
+  List<ServicioApp> _serviciosDestacados = [];
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarServicios();
+  }
+
+  Future<void> _cargarServicios() async {
+    try {
+      final lista = await _repoServicios.obtenerServiciosDestacados();
+      if (mounted) {
+        setState(() {
+          _serviciosDestacados = lista;
+          _cargando = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _cargando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +126,7 @@ class PaginaInicioPublica extends StatelessWidget {
               ),
             ),
 
-            // Sección de Servicios Destacados
+            // Sección de Servicios Destacados Dinámicos
             Container(
               padding: EdgeInsets.symmetric(
                 vertical: esMovil ? 36 : 60,
@@ -112,40 +144,28 @@ class PaginaInicioPublica extends StatelessWidget {
                     style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 36),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: esMovil ? 1 : (PuntosCorteResponsive.esTablet(context) ? 2 : 4),
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: esMovil ? 1.4 : 1.1,
-                    children: [
-                      TarjetaServicioPublico(
-                        icono: Icons.computer_rounded,
-                        titulo: 'Mantenimiento & Reparación',
-                        descripcion: 'Diagnóstico, optimización, limpieza física y cambio de componentes para laptops y PCs.',
-                        onTap: () => context.go('/servicios'),
-                      ),
-                      TarjetaServicioPublico(
-                        icono: Icons.wifi_rounded,
-                        titulo: 'Redes & Cobertura Wi-Fi',
-                        descripcion: 'Configuración de routers, ampliación de señal, puntos de acceso y ponchado de cableado.',
-                        onTap: () => context.go('/servicios'),
-                      ),
-                      TarjetaServicioPublico(
-                        icono: Icons.videocam_rounded,
-                        titulo: 'Videovigilancia (Cámaras)',
-                        descripcion: 'Instalación, mantenimiento y configuración de sistemas de cámaras de seguridad.',
-                        onTap: () => context.go('/servicios'),
-                      ),
-                      TarjetaServicioPublico(
-                        icono: Icons.school_rounded,
-                        titulo: 'Asesoría & Tutorías',
-                        descripcion: 'Capacitación personalizada sobre herramientas tecnológicas y orientación en compras.',
-                        onTap: () => context.go('/servicios'),
-                      ),
-                    ],
-                  ),
+                  _cargando
+                      ? const Center(child: CircularProgressIndicator())
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: esMovil ? 1 : (PuntosCorteResponsive.esTablet(context) ? 2 : 4),
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 20,
+                            childAspectRatio: esMovil ? 1.4 : 1.1,
+                          ),
+                          itemCount: _serviciosDestacados.length,
+                          itemBuilder: (context, index) {
+                            final s = _serviciosDestacados[index];
+                            return TarjetaServicioPublico(
+                              icono: MapeadorIconos.obtenerIcono(s.iconoNombre),
+                              titulo: s.titulo,
+                              descripcion: s.descripcion,
+                              onTap: () => context.go('/servicios'),
+                            );
+                          },
+                        ),
                 ],
               ),
             ),
