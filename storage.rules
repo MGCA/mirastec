@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Logos de la empresa / Branding: Lectura pública, escritura solo administradores
+    match /branding/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null; // En Fase 2 se refinará por rol admin
+    }
+
+    // Fotos de perfil: Lectura autenticada, escritura por el dueño de la foto o admin
+    match /profiles/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Fotos de equipos y evidencias: Lectura y escritura autenticada
+    match /equipment/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /evidences/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /receptions/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Denegar todo lo demás por defecto
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

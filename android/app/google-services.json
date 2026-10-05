@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "95545725777",
+    "project_id": "mirastec-a1c34",
+    "storage_bucket": "mirastec-a1c34.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95545725777:android:622c3817ec31d77b033970",
+        "android_client_info": {
+          "package_name": "com.mirastec.mirastec"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp5TmiChWYZM0BMXqYdLKyiA_DJkJEG3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

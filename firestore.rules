@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Reglas base predeterminadas: Denegar todo acceso por defecto
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Regla temporal para verificación de desarrollo / inicialización
+    // (Se restringirá rigurosamente por roles en la Fase 2: Autenticación)
+    match /usuarios/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
